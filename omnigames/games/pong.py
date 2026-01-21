@@ -50,6 +50,19 @@ class PongGame(BaseGame):
 
         self.game_over = False
 
+    def reset_game(self) -> None:
+        """Reset game state without reinitializing pygame."""
+        self.score = 0
+        self.enemy_score = 0
+        self.player_y = self.height // 2 - self.paddle_height // 2
+        self.player_dy = 0
+        self.enemy_y = self.height // 2 - self.paddle_height // 2
+        self.ball_x = self.width // 2
+        self.ball_y = self.height // 2
+        self.ball_dx = 5
+        self.ball_dy = 5
+        self.game_over = False
+
     def initialize(self) -> bool:
         """Initialize pygame and game resources."""
         try:
@@ -76,7 +89,7 @@ class PongGame(BaseGame):
             elif event.key == pygame.K_DOWN:
                 self.player_dy = self.paddle_speed
             elif event.key == pygame.K_SPACE and self.game_over:
-                self.__init__(self.user_id, self.game_name)
+                self.reset_game()
         elif event.type == pygame.KEYUP:
             if event.key in (pygame.K_UP, pygame.K_DOWN):
                 self.player_dy = 0

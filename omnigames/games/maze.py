@@ -70,6 +70,21 @@ class MazeGame(BaseGame):
                     pellets.add((i, j))
         return pellets
 
+    def reset_game(self) -> None:
+        """Reset game state without reinitializing pygame."""
+        self.score = 0
+        self.player_x = 1
+        self.player_y = 1
+        self.ghosts = [
+            {"x": 9, "y": 8, "dx": 1, "dy": 0},
+            {"x": 8, "y": 9, "dx": 0, "dy": 1},
+            {"x": 9, "y": 9, "dx": -1, "dy": 0},
+        ]
+        self.maze = self._generate_maze()
+        self.pellets = self._generate_pellets()
+        self.game_over = False
+        self.won = False
+
     def initialize(self) -> bool:
         """Initialize pygame and game resources."""
         try:
@@ -93,7 +108,7 @@ class MazeGame(BaseGame):
             if event.key == pygame.K_ESCAPE:
                 self.running = False
             elif event.key == pygame.K_SPACE and self.game_over:
-                self.__init__(self.user_id, self.game_name)
+                self.reset_game()
 
     def update(self, dt: float) -> None:
         """Update game state."""

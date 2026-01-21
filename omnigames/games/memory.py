@@ -42,6 +42,16 @@ class MemoryGame(BaseGame):
         self.revealed = [False] * len(self.cards)
         self.matched = [False] * len(self.cards)
 
+    def reset_game(self) -> None:
+        """Reset game state without reinitializing pygame."""
+        self.score = 0
+        self.moves = 0
+        self.matched_count = 0
+        self._initialize_cards()
+        self.first_click = None
+        self.second_click = None
+        self.click_locked = False
+
     def initialize(self) -> bool:
         """Initialize pygame and game resources."""
         try:
@@ -66,7 +76,7 @@ class MemoryGame(BaseGame):
             if event.key == pygame.K_ESCAPE:
                 self.running = False
             elif event.key == pygame.K_SPACE and self.matched_count == len(self.cards) // 2:
-                self.__init__(self.user_id, self.game_name)
+                self.reset_game()
         elif event.type == pygame.MOUSEBUTTONDOWN and not self.click_locked:
             if not self.paused:
                 pos = pygame.mouse.get_pos()

@@ -25,6 +25,15 @@ class TicTacToeGame(BaseGame):
         self.message = "Your turn (X)"
         self.cell_size = 150
 
+    def reset_game(self) -> None:
+        """Reset game state without reinitializing pygame."""
+        self.score = 0
+        self.board = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+        self.player = 1
+        self.game_over = False
+        self.winner = None
+        self.message = "Your turn (X)"
+
     def initialize(self) -> bool:
         """Initialize pygame and game resources."""
         try:
@@ -47,7 +56,7 @@ class TicTacToeGame(BaseGame):
             if event.key == pygame.K_ESCAPE:
                 self.running = False
             elif event.key == pygame.K_SPACE and self.game_over:
-                self.__init__(self.user_id, self.game_name)
+                self.reset_game()
         elif event.type == pygame.MOUSEBUTTONDOWN and not self.game_over:
             if not self.paused:
                 pos = pygame.mouse.get_pos()

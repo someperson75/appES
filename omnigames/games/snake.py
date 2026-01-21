@@ -35,6 +35,15 @@ class SnakeGame(BaseGame):
             if food not in self.snake:
                 return food
 
+    def reset_game(self) -> None:
+        """Reset game state without reinitializing pygame."""
+        self.score = 0
+        self.snake = [(self.grid_width // 2, self.grid_height // 2)]
+        self.food = self._spawn_food()
+        self.direction = (1, 0)
+        self.next_direction = (1, 0)
+        self.game_over = False
+
     def initialize(self) -> bool:
         """Initialize pygame and game resources."""
         try:
@@ -66,7 +75,7 @@ class SnakeGame(BaseGame):
             elif event.key == pygame.K_RIGHT and self.direction != (-1, 0):
                 self.next_direction = (1, 0)
             elif event.key == pygame.K_SPACE and self.game_over:
-                self.__init__(self.user_id, self.game_name)
+                self.reset_game()
 
     def update(self, dt: float) -> None:
         """Update game state."""

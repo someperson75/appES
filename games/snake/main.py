@@ -16,6 +16,7 @@ class SnakeGame(BaseGame):
     def __init__(self, user_id: int, game_name: str):
         """Initialize Snake game."""
         super().__init__(user_id, game_name)
+        self.game_name = game_name
         self.screen = None
         self.clock = None
         self.score = 0
