@@ -1,0 +1,9 @@
+{
+  "name": "memory",
+  "title": "Memory Game",
+  "description": "Test your memory with matching pairs",
+  "version": "1.0.0",
+  "author": "omniGames",
+  "main_module": "memory",
+  "icon": "assets/thumbnail.png"
+}

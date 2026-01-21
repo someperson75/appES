@@ -1,0 +1,9 @@
+{
+  "name": "pong",
+  "title": "Pong",
+  "description": "Classic Pong arcade game",
+  "version": "1.0.0",
+  "author": "omniGames",
+  "main_module": "pong",
+  "icon": "assets/thumbnail.png"
+}

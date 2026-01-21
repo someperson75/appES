@@ -1,0 +1,9 @@
+{
+  "name": "tictactoe",
+  "title": "Tic Tac Toe",
+  "description": "Play Tic Tac Toe against AI",
+  "version": "1.0.0",
+  "author": "omniGames",
+  "main_module": "tictactoe",
+  "icon": "assets/thumbnail.png"
+}

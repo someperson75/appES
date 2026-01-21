@@ -1,0 +1,9 @@
+{
+  "name": "snake",
+  "title": "Snake",
+  "description": "Classic Snake game",
+  "version": "1.0.0",
+  "author": "omniGames",
+  "main_module": "snake",
+  "icon": "assets/thumbnail.png"
+}
