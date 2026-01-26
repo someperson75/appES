@@ -31,7 +31,7 @@ class MemoryGame(BaseGame):
         self.clock = pygame.time.Clock()
         self.font = pygame.font.Font(None, 36)
         self.card_font = pygame.font.Font(None, 72)
-        self.highest_score = float('inf')
+        self.highest_score = 0
         self.wait = 0
         # Initialize game state
         self.initialize()
