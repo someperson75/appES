@@ -320,9 +320,9 @@ class MainMenu:
             sys.modules[game_name] = module
             spec.loader.exec_module(module)
 
-            # Run game
+            # Run game with current language
             if hasattr(module, "main"):
-                score = module.main(self.current_user["id"])
+                score = module.main(self.current_user["id"], localization.language)
 
                 # Update statistics
                 db.update_game_stats(self.current_user["id"], game_name, score, 0)

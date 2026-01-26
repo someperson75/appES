@@ -5,6 +5,7 @@ import random
 from typing import Dict, Any, List, Tuple
 import sys
 from pathlib import Path
+import json
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from omnigames.core.base_game import BaseGame
@@ -13,9 +14,12 @@ from omnigames.core.base_game import BaseGame
 class MazeGame(BaseGame):
     """Maze/Pacman-style game implementation."""
 
-    def __init__(self, user_id: int, game_name: str):
+    def __init__(self, user_id: int, game_name: str, language: str = "en"):
         """Initialize Maze game with pygame resources."""
         super().__init__(user_id, game_name)
+        self.language = language
+        self.locales = {}
+        self._load_locales()
         
         # Initialize pygame and resources (do not change on restart)
         pygame.init()
@@ -25,7 +29,7 @@ class MazeGame(BaseGame):
         width = self.grid_width * self.tile_size
         height = self.grid_height * self.tile_size + 50
         self.screen = pygame.display.set_mode((width, height))
-        pygame.display.set_caption("Maze Game")
+        pygame.display.set_caption(self._get_text("game_title", "Maze Game"))
         self.clock = pygame.time.Clock()
         self.font = pygame.font.Font(None, 36)
         
@@ -35,6 +39,25 @@ class MazeGame(BaseGame):
         # Initialize game state
         self.initialize()
         
+    def _load_locales(self) -> None:
+        """Load locale files for this game."""
+        locales_path = Path(__file__).parent / "locales"
+        for lang_file in locales_path.glob("*.json"):
+            lang = lang_file.stem
+            try:
+                with open(lang_file, "r", encoding="utf-8") as f:
+                    self.locales[lang] = json.load(f)
+            except Exception:
+                pass
+    
+    def _get_text(self, key: str, fallback: str = "") -> str:
+        """Get localized text for given key."""
+        if self.language in self.locales and key in self.locales[self.language]:
+            return self.locales[self.language][key]
+        if "en" in self.locales and key in self.locales["en"]:
+            return self.locales["en"][key]
+        return fallback
+
     def initialize(self) -> bool:
         """Initialize game variables and state."""
         try:
@@ -223,9 +246,9 @@ class MazeGame(BaseGame):
         return self.score
 
 
-def main(user_id: int) -> int:
+def main(user_id: int, language: str = "en") -> int:
     """Entry point for Maze game."""
-    game = MazeGame(user_id, "maze")
+    game = MazeGame(user_id, "maze", language)
     return game.run()
 
 

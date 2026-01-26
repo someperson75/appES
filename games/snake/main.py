@@ -5,6 +5,7 @@ import random
 from typing import Dict, Any, List, Tuple
 import sys
 from pathlib import Path
+import json
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from omnigames.core.base_game import BaseGame
@@ -13,10 +14,13 @@ from omnigames.core.base_game import BaseGame
 class SnakeGame(BaseGame):
     """Classic Snake game implementation."""
 
-    def __init__(self, user_id: int, game_name: str):
+    def __init__(self, user_id: int, game_name: str, language: str = "en"):
         """Initialize Snake game with pygame resources."""
         super().__init__(user_id, game_name)
         self.game_name = game_name
+        self.language = language
+        self.locales = {}
+        self._load_locales()
         
         # Initialize pygame and resources (do not change on restart)
         pygame.init()
@@ -26,13 +30,32 @@ class SnakeGame(BaseGame):
         width = self.grid_width * self.grid_size
         height = self.grid_height * self.grid_size + 50
         self.screen = pygame.display.set_mode((width, height))
-        pygame.display.set_caption("Snake Game")
+        pygame.display.set_caption(self._get_text("game_title", "Snake Game"))
         self.clock = pygame.time.Clock()
         self.font = pygame.font.Font(None, 36)
         
         # Initialize game state
         self.initialize()
         
+    def _load_locales(self) -> None:
+        """Load locale files for this game."""
+        locales_path = Path(__file__).parent / "locales"
+        for lang_file in locales_path.glob("*.json"):
+            lang = lang_file.stem
+            try:
+                with open(lang_file, "r", encoding="utf-8") as f:
+                    self.locales[lang] = json.load(f)
+            except Exception:
+                pass
+    
+    def _get_text(self, key: str, fallback: str = "") -> str:
+        """Get localized text for given key."""
+        if self.language in self.locales and key in self.locales[self.language]:
+            return self.locales[self.language][key]
+        if "en" in self.locales and key in self.locales["en"]:
+            return self.locales["en"][key]
+        return fallback
+
     def _spawn_food(self) -> Tuple[int, int]:
         """Spawn food at random location not occupied by snake."""
         while True:
@@ -138,12 +161,14 @@ class SnakeGame(BaseGame):
         ui_y = self.grid_height * self.grid_size
         pygame.draw.line(self.screen, (100, 100, 100), (0, ui_y), (self.grid_width * self.grid_size, ui_y))
 
-        score_text = self.font.render(f"Score: {self.score}", True, (255, 255, 255))
+        score_label = self._get_text("score", "Score")
+        score_text = self.font.render(f"{score_label}: {self.score}", True, (255, 255, 255))
         self.screen.blit(score_text, (10, ui_y + 10))
 
         if self.game_over:
-            game_over_text = self.font.render("GAME OVER! Press SPACE to restart", True, (255, 0, 0))
-            self.screen.blit(game_over_text, (100, ui_y + 10))
+            game_over_msg = self._get_text("game_over", "GAME OVER!") + " " + self._get_text("restart", "Press SPACE to restart")
+            game_over_text = self.font.render(game_over_msg, True, (255, 0, 0))
+            self.screen.blit(game_over_text, (50, ui_y + 10))
 
         pygame.display.flip()
 
@@ -178,9 +203,9 @@ class SnakeGame(BaseGame):
         return self.score
 
 
-def main(user_id: int) -> int:
+def main(user_id: int, language: str = "en") -> int:
     """Entry point for Snake game."""
-    game = SnakeGame(user_id, "snake")
+    game = SnakeGame(user_id, "snake", language)
     return game.run()
 
 

@@ -4,6 +4,7 @@ import pygame
 from typing import Dict, Any, Optional, List, Tuple
 import sys
 from pathlib import Path
+import json
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from omnigames.core.base_game import BaseGame
@@ -12,15 +13,18 @@ from omnigames.core.base_game import BaseGame
 class TicTacToeGame(BaseGame):
     """Tic Tac Toe game implementation with AI opponent."""
 
-    def __init__(self, user_id: int, game_name: str):
+    def __init__(self, user_id: int, game_name: str, language: str = "en"):
         """Initialize Tic Tac Toe game with pygame resources."""
         super().__init__(user_id, game_name)
+        self.language = language
+        self.locales = {}
+        self._load_locales()
         
         # Initialize pygame and resources (do not change on restart)
         pygame.init()
         self.cell_size = 150
         self.screen = pygame.display.set_mode((600, 700))
-        pygame.display.set_caption("Tic Tac Toe")
+        pygame.display.set_caption(self._get_text("game_title", "Tic Tac Toe"))
         self.clock = pygame.time.Clock()
         self.font = pygame.font.Font(None, 36)
         self.large_font = pygame.font.Font(None, 72)
@@ -29,6 +33,25 @@ class TicTacToeGame(BaseGame):
         # Initialize game state
         self.initialize()
         
+    def _load_locales(self) -> None:
+        """Load locale files for this game."""
+        locales_path = Path(__file__).parent / "locales"
+        for lang_file in locales_path.glob("*.json"):
+            lang = lang_file.stem
+            try:
+                with open(lang_file, "r", encoding="utf-8") as f:
+                    self.locales[lang] = json.load(f)
+            except Exception:
+                pass
+    
+    def _get_text(self, key: str, fallback: str = "") -> str:
+        """Get localized text for given key."""
+        if self.language in self.locales and key in self.locales[self.language]:
+            return self.locales[self.language][key]
+        if "en" in self.locales and key in self.locales["en"]:
+            return self.locales["en"][key]
+        return fallback
+
     def initialize(self) -> bool:
         """Initialize game variables and state."""
         try:
@@ -37,7 +60,7 @@ class TicTacToeGame(BaseGame):
             self.player = 1  # 1 = human, -1 = AI
             self.game_over = False
             self.winner = None
-            self.message = "Your turn (X)"
+            self.message = self._get_text("your_turn", "Your turn (X)")
             return True
         except Exception as e:
             print(f"Initialization error: {e}")
@@ -144,19 +167,19 @@ class TicTacToeGame(BaseGame):
             self.game_over = True
             self.winner = "You Won!"
             self.game_wons += 1
-            self.message = "You Won! Press SPACE to restart"
+            self.message = self._get_text("you_won", "You Won!") + " " + self._get_text("restart", "Press SPACE to restart")
         elif winner == -1:
             self.game_over = True
             self.winner = "AI Won!"
             self.game_wons -= 0.5
-            self.message = "AI Won! Press SPACE to restart"
+            self.message = self._get_text("ai_won", "AI Won!") + " " + self._get_text("restart", "Press SPACE to restart")
         elif self._is_full():
             self.game_over = True
             self.winner = "Draw!"
             self.game_wons += 0.5
-            self.message = "Draw! Press SPACE to restart"
+            self.message = self._get_text("draw", "Draw!") + " " + self._get_text("restart", "Press SPACE to restart")
         else:
-            self.message = "Your turn (X)"
+            self.message = self._get_text("your_turn", "Your turn (X)")
 
     def update(self, dt: float) -> None:
         """Update game state."""
@@ -221,9 +244,9 @@ class TicTacToeGame(BaseGame):
         return self.game_wons
 
 
-def main(user_id: int) -> int:
+def main(user_id: int, language: str = "en") -> int:
     """Entry point for Tic Tac Toe game."""
-    game = TicTacToeGame(user_id, "tictactoe")
+    game = TicTacToeGame(user_id, "tictactoe", language)
     return game.run()
 
 

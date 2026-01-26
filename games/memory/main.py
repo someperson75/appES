@@ -5,6 +5,7 @@ import random
 from typing import Dict, Any, List, Tuple
 import sys
 from pathlib import Path
+import json
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from omnigames.core.base_game import BaseGame
@@ -13,9 +14,12 @@ from omnigames.core.base_game import BaseGame
 class MemoryGame(BaseGame):
     """Memory/Matching game implementation."""
 
-    def __init__(self, user_id: int, game_name: str):
+    def __init__(self, user_id: int, game_name: str, language: str = "en"):
         """Initialize Memory game with pygame resources."""
         super().__init__(user_id, game_name)
+        self.language = language
+        self.locales = {}
+        self._load_locales()
         
         # Initialize pygame and resources (do not change on restart)
         pygame.init()
@@ -27,7 +31,7 @@ class MemoryGame(BaseGame):
         width = self.grid_cols * (self.card_width + self.card_spacing) + self.card_spacing
         height = self.grid_rows * (self.card_height + self.card_spacing) + 100
         self.screen = pygame.display.set_mode((width, height))
-        pygame.display.set_caption("Memory Game")
+        pygame.display.set_caption(self._get_text("game_title", "Memory Game"))
         self.clock = pygame.time.Clock()
         self.font = pygame.font.Font(None, 36)
         self.card_font = pygame.font.Font(None, 72)
@@ -43,6 +47,25 @@ class MemoryGame(BaseGame):
         self.cards = numbers
         self.revealed = [False] * len(self.cards)
         self.matched = [False] * len(self.cards)
+
+    def _load_locales(self) -> None:
+        """Load locale files for this game."""
+        locales_path = Path(__file__).parent / "locales"
+        for lang_file in locales_path.glob("*.json"):
+            lang = lang_file.stem
+            try:
+                with open(lang_file, "r", encoding="utf-8") as f:
+                    self.locales[lang] = json.load(f)
+            except Exception:
+                pass
+    
+    def _get_text(self, key: str, fallback: str = "") -> str:
+        """Get localized text for given key."""
+        if self.language in self.locales and key in self.locales[self.language]:
+            return self.locales[self.language][key]
+        if "en" in self.locales and key in self.locales["en"]:
+            return self.locales["en"][key]
+        return fallback
 
     def initialize(self) -> bool:
         """Initialize game variables and state."""
@@ -190,9 +213,9 @@ class MemoryGame(BaseGame):
         """Return highest score."""
         return self.highest_score
 
-def main(user_id: int) -> int:
+def main(user_id: int, language: str = "en") -> int:
     """Entry point for Memory game."""
-    game = MemoryGame(user_id, "memory")
+    game = MemoryGame(user_id, "memory", language)
     return game.run()
 
 
