@@ -14,51 +14,54 @@ class PongGame(BaseGame):
     """Pong game implementation."""
 
     def __init__(self, user_id: int, game_name: str):
-        """Initialize Pong game."""
+        """Initialize Pong game with pygame resources."""
         super().__init__(user_id, game_name)
-        self.screen = None
-        self.clock = None
-        self.score = 0
-        self.enemy_score = 0
-
-        # Game dimensions
+        
+        # Initialize pygame and resources (do not change on restart)
+        pygame.init()
         self.width = 800
         self.height = 600
-
+        self.screen = pygame.display.set_mode((self.width, self.height))
+        pygame.display.set_caption("Pong")
+        self.clock = pygame.time.Clock()
+        self.font = pygame.font.Font(None, 72)
+        self.small_font = pygame.font.Font(None, 36)
+        
         # Paddle properties
         self.paddle_width = 15
         self.paddle_height = 90
         self.paddle_speed = 5
-
-        # Player paddle
-        self.player_x = 10
-        self.player_y = self.height // 2 - self.paddle_height // 2
-        self.player_dy = 0
-
-        # Enemy paddle
-        self.enemy_x = self.width - 25
-        self.enemy_y = self.height // 2 - self.paddle_height // 2
-        self.enemy_dy = 0
-
+        
         # Ball properties
         self.ball_size = 10
-        self.ball_x = self.width // 2
-        self.ball_y = self.height // 2
-        self.ball_dx = 5
-        self.ball_dy = 5
         self.ball_speed = 5
-
-        self.game_over = False
-
+        
+        # Initialize game state
+        self.initialize()
+        
     def initialize(self) -> bool:
-        """Initialize pygame and game resources."""
+        """Initialize game variables and state."""
         try:
-            pygame.init()
-            self.screen = pygame.display.set_mode((self.width, self.height))
-            pygame.display.set_caption("Pong")
-            self.clock = pygame.time.Clock()
-            self.font = pygame.font.Font(None, 72)
-            self.small_font = pygame.font.Font(None, 36)
+            self.score = 0
+            self.enemy_score = 0
+            
+            # Player paddle
+            self.player_x = 10
+            self.player_y = self.height // 2 - self.paddle_height // 2
+            self.player_dy = 0
+            
+            # Enemy paddle
+            self.enemy_x = self.width - 25
+            self.enemy_y = self.height // 2 - self.paddle_height // 2
+            self.enemy_dy = 0
+            
+            # Ball
+            self.ball_x = self.width // 2
+            self.ball_y = self.height // 2
+            self.ball_dx = 5
+            self.ball_dy = 5
+            
+            self.game_over = False
             return True
         except Exception as e:
             print(f"Initialization error: {e}")
@@ -76,7 +79,7 @@ class PongGame(BaseGame):
             elif event.key == pygame.K_DOWN:
                 self.player_dy = self.paddle_speed
             elif event.key == pygame.K_SPACE and self.game_over:
-                self.__init__(self.user_id, self.game_name)
+                self.initialize()
         elif event.type == pygame.KEYUP:
             if event.key in (pygame.K_UP, pygame.K_DOWN):
                 self.player_dy = 0

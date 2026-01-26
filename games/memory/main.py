@@ -14,25 +14,27 @@ class MemoryGame(BaseGame):
     """Memory/Matching game implementation."""
 
     def __init__(self, user_id: int, game_name: str):
-        """Initialize Memory game."""
+        """Initialize Memory game with pygame resources."""
         super().__init__(user_id, game_name)
-        self.screen = None
-        self.clock = None
-        self.score = 0
+        
+        # Initialize pygame and resources (do not change on restart)
+        pygame.init()
         self.grid_cols = 4
         self.grid_rows = 4
         self.card_width = 100
         self.card_height = 100
         self.card_spacing = 10
-        self.cards = []
-        self.revealed = []
-        self.matched = []
-        self.first_click = None
-        self.second_click = None
-        self.click_locked = False
-        self.moves = 0
-        self.matched_count = 0
-        self._initialize_cards()
+        width = self.grid_cols * (self.card_width + self.card_spacing) + self.card_spacing
+        height = self.grid_rows * (self.card_height + self.card_spacing) + 100
+        self.screen = pygame.display.set_mode((width, height))
+        pygame.display.set_caption("Memory Game")
+        self.clock = pygame.time.Clock()
+        self.font = pygame.font.Font(None, 36)
+        self.card_font = pygame.font.Font(None, 72)
+        self.highest_score = float('inf')
+        self.wait = 0
+        # Initialize game state
+        self.initialize()
 
     def _initialize_cards(self) -> None:
         """Initialize card grid."""
@@ -43,16 +45,18 @@ class MemoryGame(BaseGame):
         self.matched = [False] * len(self.cards)
 
     def initialize(self) -> bool:
-        """Initialize pygame and game resources."""
+        """Initialize game variables and state."""
         try:
-            pygame.init()
-            width = self.grid_cols * (self.card_width + self.card_spacing) + self.card_spacing
-            height = self.grid_rows * (self.card_height + self.card_spacing) + 100
-            self.screen = pygame.display.set_mode((width, height))
-            pygame.display.set_caption("Memory Game")
-            self.clock = pygame.time.Clock()
-            self.font = pygame.font.Font(None, 36)
-            self.card_font = pygame.font.Font(None, 72)
+            self.score = 0
+            self.cards = []
+            self.revealed = []
+            self.matched = []
+            self.first_click = None
+            self.second_click = None
+            self.click_locked = False
+            self.moves = 0
+            self.matched_count = 0
+            self._initialize_cards()
             return True
         except Exception as e:
             print(f"Initialization error: {e}")
@@ -62,11 +66,13 @@ class MemoryGame(BaseGame):
         """Handle pygame events."""
         if event.type == pygame.QUIT:
             self.running = False
-        elif event.type == pygame.KEYDOWN:
+        if self.wait > 0: 
+            return # we skip events while waiting
+        if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 self.running = False
             elif event.key == pygame.K_SPACE and self.matched_count == len(self.cards) // 2:
-                self.__init__(self.user_id, self.game_name)
+                self.initialize()
         elif event.type == pygame.MOUSEBUTTONDOWN and not self.click_locked:
             if not self.paused:
                 pos = pygame.mouse.get_pos()
@@ -86,11 +92,17 @@ class MemoryGame(BaseGame):
 
     def update(self, dt: float) -> None:
         """Update game state."""
-        if self.paused or not self.click_locked:
+        # Wait before erasing cards
+        if self.wait > 0:
+            self.wait -= dt*1000
+        
+        if self.wait <= 0 and self.wait != -1000:
+            self.revealed = [matched for matched in self.matched]
+            self.wait = -1000
             return
 
-        # Wait before checking match
-        pygame.time.wait(500)
+        if self.paused or not self.click_locked or self.wait > 0:
+            return
 
         if self.first_click is not None and self.second_click is not None:
             if self.cards[self.first_click] == self.cards[self.second_click]:
@@ -100,9 +112,7 @@ class MemoryGame(BaseGame):
                 self.matched_count += 1
                 self.score += 10
             else:
-                # No match
-                self.revealed[self.first_click] = False
-                self.revealed[self.second_click] = False
+                self.wait = 1000
 
             self.first_click = None
             self.second_click = None
@@ -140,6 +150,7 @@ class MemoryGame(BaseGame):
         ui_y = self.grid_rows * (self.card_height + self.card_spacing) + self.card_spacing
         score_text = self.font.render(f"Score: {self.score} | Moves: {self.moves}", True, (255, 255, 255))
         self.screen.blit(score_text, (10, ui_y + 10))
+        self.highest_score = max(self.highest_score, self.score/(self.moves if self.moves>0 else 1))
 
         if self.matched_count == len(self.cards) // 2:
             game_over_text = self.font.render("YOU WON! Press SPACE to restart", True, (0, 255, 0))
@@ -168,15 +179,16 @@ class MemoryGame(BaseGame):
                     self.update(dt)
 
                 self.render()
+                if self.first_click is not None and self.second_click is not None:
+                    pygame.time.delay(1000)  # 1 second delay to show cards
         finally:
             self.cleanup()
 
         return self.get_score()
 
     def get_score(self) -> int:
-        """Return current score."""
-        return self.score
-
+        """Return highest score."""
+        return self.highest_score
 
 def main(user_id: int) -> int:
     """Entry point for Memory game."""

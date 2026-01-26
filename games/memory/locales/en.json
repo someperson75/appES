@@ -1,0 +1,9 @@
+{
+  "game_title": "Memory Game",
+  "game_description": "Match pairs of cards",
+  "score": "Score",
+  "moves": "Moves",
+  "you_won": "YOU WON!",
+  "restart": "Press SPACE to restart",
+  "escape": "Press ESC to exit"
+}

@@ -13,27 +13,31 @@ class TicTacToeGame(BaseGame):
     """Tic Tac Toe game implementation with AI opponent."""
 
     def __init__(self, user_id: int, game_name: str):
-        """Initialize Tic Tac Toe game."""
+        """Initialize Tic Tac Toe game with pygame resources."""
         super().__init__(user_id, game_name)
-        self.screen = None
-        self.clock = None
-        self.score = 0
-        self.board: List[List[int]] = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
-        self.player = 1  # 1 = human, -1 = AI
-        self.game_over = False
-        self.winner = None
-        self.message = "Your turn (X)"
+        
+        # Initialize pygame and resources (do not change on restart)
+        pygame.init()
         self.cell_size = 150
-
+        self.screen = pygame.display.set_mode((600, 700))
+        pygame.display.set_caption("Tic Tac Toe")
+        self.clock = pygame.time.Clock()
+        self.font = pygame.font.Font(None, 36)
+        self.large_font = pygame.font.Font(None, 72)
+        self.game_wons = 0
+        
+        # Initialize game state
+        self.initialize()
+        
     def initialize(self) -> bool:
-        """Initialize pygame and game resources."""
+        """Initialize game variables and state."""
         try:
-            pygame.init()
-            self.screen = pygame.display.set_mode((600, 700))
-            pygame.display.set_caption("Tic Tac Toe")
-            self.clock = pygame.time.Clock()
-            self.font = pygame.font.Font(None, 36)
-            self.large_font = pygame.font.Font(None, 72)
+            self.score = 0
+            self.board: List[List[int]] = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+            self.player = 1  # 1 = human, -1 = AI
+            self.game_over = False
+            self.winner = None
+            self.message = "Your turn (X)"
             return True
         except Exception as e:
             print(f"Initialization error: {e}")
@@ -47,7 +51,7 @@ class TicTacToeGame(BaseGame):
             if event.key == pygame.K_ESCAPE:
                 self.running = False
             elif event.key == pygame.K_SPACE and self.game_over:
-                self.__init__(self.user_id, self.game_name)
+                self.initialize()
         elif event.type == pygame.MOUSEBUTTONDOWN and not self.game_over:
             if not self.paused:
                 pos = pygame.mouse.get_pos()
@@ -139,15 +143,17 @@ class TicTacToeGame(BaseGame):
         if winner == 1:
             self.game_over = True
             self.winner = "You Won!"
-            self.score = 100
+            self.game_wons += 1
             self.message = "You Won! Press SPACE to restart"
         elif winner == -1:
             self.game_over = True
             self.winner = "AI Won!"
+            self.game_wons -= 0.5
             self.message = "AI Won! Press SPACE to restart"
         elif self._is_full():
             self.game_over = True
             self.winner = "Draw!"
+            self.game_wons += 0.5
             self.message = "Draw! Press SPACE to restart"
         else:
             self.message = "Your turn (X)"
@@ -212,7 +218,7 @@ class TicTacToeGame(BaseGame):
 
     def get_score(self) -> int:
         """Return current score."""
-        return self.score
+        return self.game_wons
 
 
 def main(user_id: int) -> int:

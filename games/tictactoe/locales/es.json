@@ -1,0 +1,10 @@
+{
+  "game_title": "Tic Tac Toe",
+  "game_description": "Juega Tic Tac Toe contra la IA",
+  "your_turn": "Tu turno (X)",
+  "you_won": "¡Ganaste!",
+  "ai_won": "¡IA Ganó!",
+  "draw": "¡Empate!",
+  "restart": "Presiona ESPACIO para reiniciar",
+  "escape": "Presiona ESC para salir"
+}

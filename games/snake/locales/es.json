@@ -1,0 +1,8 @@
+{
+  "game_title": "Juego Snake",
+  "game_description": "Clásico juego de arcade Snake",
+  "score": "Puntuación",
+  "game_over": "JUEGO TERMINADO",
+  "restart": "Presiona ESPACIO para reiniciar",
+  "escape": "Presiona ESC para salir"
+}

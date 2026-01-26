@@ -14,22 +14,35 @@ from omnigames.core import db, localization, game_manager
 class GameButton:
     """Custom button widget for displaying games."""
 
-    def __init__(self, parent, game_data: dict, callback: Callable):
+    def __init__(self, parent, game_data: dict, callback: Callable, current_language: str = "en"):
         """Initialize game button."""
         self.frame = tk.Frame(parent, bg="#2a2a2a", relief=tk.RAISED, bd=1)
         self.frame.pack(fill=tk.X, padx=5, pady=5)
 
         self.game_data = game_data
         self.callback = callback
+        self.current_language = current_language
+        self.game_locales = self._load_game_locales()
 
         # Game info
         info_frame = tk.Frame(self.frame, bg="#2a2a2a")
         info_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=10, pady=10)
 
+        # Title with language warning icon
+        title_frame = tk.Frame(info_frame, bg="#2a2a2a")
+        title_frame.pack(anchor=tk.W)
+
         title = tk.Label(
-            info_frame, text=game_data.get("title", "Unknown"), font=("Arial", 14, "bold"), fg="white", bg="#2a2a2a"
+            title_frame, text=game_data.get("title", "Unknown"), font=("Arial", 14, "bold"), fg="white", bg="#2a2a2a"
         )
-        title.pack(anchor=tk.W)
+        title.pack(side=tk.LEFT)
+
+        # Language warning icon
+        if not self._language_available():
+            warning = tk.Label(
+                title_frame, text="⚠", font=("Arial", 14, "bold"), fg="yellow", bg="#2a2a2a"
+            )
+            warning.pack(side=tk.LEFT, padx=5)
 
         desc = tk.Label(
             info_frame,
@@ -47,9 +60,35 @@ class GameButton:
         )
         btn.pack(side=tk.RIGHT, padx=10, pady=10)
 
+    def _load_game_locales(self) -> dict:
+        """Load locales for the game."""
+        game_path = Path(self.game_data["path"])
+        locales_path = game_path / "locales"
+        locales = {}
+
+        if locales_path.exists():
+            for lang_file in locales_path.glob("*.json"):
+                lang = lang_file.stem
+                try:
+                    with open(lang_file, "r", encoding="utf-8") as f:
+                        locales[lang] = json.load(f)
+                except Exception:
+                    pass
+
+        return locales
+
+    def _language_available(self) -> bool:
+        """Check if current language is available for this game."""
+        return self.current_language in self.game_locales
+
     def _play(self):
         """Callback when play button is clicked."""
-        self.callback(self.game_data)
+        if not self._language_available():
+            msg = f"Warning: This game does not support '{self.current_language}' language. It will use English instead."
+            if messagebox.askyesno("Language Warning", msg):
+                self.callback(self.game_data)
+        else:
+            self.callback(self.game_data)
 
 
 class MainMenu:
@@ -220,7 +259,7 @@ class MainMenu:
         canvas.configure(yscrollcommand=scrollbar.set)
 
         for game in games:
-            GameButton(scrollable_frame, game, self.launch_game)
+            GameButton(scrollable_frame, game, self.launch_game, localization.language)
 
         canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, pady=10)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)

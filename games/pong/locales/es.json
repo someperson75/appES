@@ -1,0 +1,8 @@
+{
+  "game_title": "Pong",
+  "game_description": "Clásico juego de arcade Pong",
+  "you_won": "¡GANASTE!",
+  "you_lost": "¡PERDISTE!",
+  "restart": "Presiona ESPACIO para reiniciar",
+  "escape": "Presiona ESC para salir"
+}

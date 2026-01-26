@@ -1,0 +1,9 @@
+{
+  "game_title": "Juego de Memoria",
+  "game_description": "Emparejar pares de cartas",
+  "score": "Puntuación",
+  "moves": "Movimientos",
+  "you_won": "¡GANASTE!",
+  "restart": "Presiona ESPACIO para reiniciar",
+  "escape": "Presiona ESC para salir"
+}

@@ -14,21 +14,25 @@ class SnakeGame(BaseGame):
     """Classic Snake game implementation."""
 
     def __init__(self, user_id: int, game_name: str):
-        """Initialize Snake game."""
+        """Initialize Snake game with pygame resources."""
         super().__init__(user_id, game_name)
         self.game_name = game_name
-        self.screen = None
-        self.clock = None
-        self.score = 0
+        
+        # Initialize pygame and resources (do not change on restart)
+        pygame.init()
         self.grid_size = 20
         self.grid_width = 40
         self.grid_height = 30
-        self.snake = [(self.grid_width // 2, self.grid_height // 2)]
-        self.food = self._spawn_food()
-        self.direction = (1, 0)
-        self.next_direction = (1, 0)
-        self.game_over = False
-
+        width = self.grid_width * self.grid_size
+        height = self.grid_height * self.grid_size + 50
+        self.screen = pygame.display.set_mode((width, height))
+        pygame.display.set_caption("Snake Game")
+        self.clock = pygame.time.Clock()
+        self.font = pygame.font.Font(None, 36)
+        
+        # Initialize game state
+        self.initialize()
+        
     def _spawn_food(self) -> Tuple[int, int]:
         """Spawn food at random location not occupied by snake."""
         while True:
@@ -37,15 +41,14 @@ class SnakeGame(BaseGame):
                 return food
 
     def initialize(self) -> bool:
-        """Initialize pygame and game resources."""
+        """Initialize game variables and state."""
         try:
-            pygame.init()
-            width = self.grid_width * self.grid_size
-            height = self.grid_height * self.grid_size + 50
-            self.screen = pygame.display.set_mode((width, height))
-            pygame.display.set_caption("Snake Game")
-            self.clock = pygame.time.Clock()
-            self.font = pygame.font.Font(None, 36)
+            self.score = 0
+            self.snake = [(self.grid_width // 2, self.grid_height // 2)]
+            self.food = self._spawn_food()
+            self.direction = (1, 0)
+            self.next_direction = (1, 0)
+            self.game_over = False
             return True
         except Exception as e:
             print(f"Initialization error: {e}")
@@ -67,7 +70,7 @@ class SnakeGame(BaseGame):
             elif event.key == pygame.K_RIGHT and self.direction != (-1, 0):
                 self.next_direction = (1, 0)
             elif event.key == pygame.K_SPACE and self.game_over:
-                self.__init__(self.user_id, self.game_name)
+                self.reset()
 
     def update(self, dt: float) -> None:
         """Update game state."""

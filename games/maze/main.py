@@ -14,32 +14,52 @@ class MazeGame(BaseGame):
     """Maze/Pacman-style game implementation."""
 
     def __init__(self, user_id: int, game_name: str):
-        """Initialize Maze game."""
+        """Initialize Maze game with pygame resources."""
         super().__init__(user_id, game_name)
-        self.screen = None
-        self.clock = None
-        self.score = 0
+        
+        # Initialize pygame and resources (do not change on restart)
+        pygame.init()
         self.tile_size = 30
         self.grid_width = 20
         self.grid_height = 18
-
-        # Player
-        self.player_x = 1
-        self.player_y = 1
+        width = self.grid_width * self.tile_size
+        height = self.grid_height * self.tile_size + 50
+        self.screen = pygame.display.set_mode((width, height))
+        pygame.display.set_caption("Maze Game")
+        self.clock = pygame.time.Clock()
+        self.font = pygame.font.Font(None, 36)
+        
+        # Game constants
         self.player_speed = 0.1
-
-        # Ghosts
-        self.ghosts = [
-            {"x": 9, "y": 8, "dx": 1, "dy": 0},
-            {"x": 8, "y": 9, "dx": 0, "dy": 1},
-            {"x": 9, "y": 9, "dx": -1, "dy": 0},
-        ]
-
-        # Maze generation
-        self.maze = self._generate_maze()
-        self.pellets = self._generate_pellets()
-        self.game_over = False
-        self.won = False
+        
+        # Initialize game state
+        self.initialize()
+        
+    def initialize(self) -> bool:
+        """Initialize game variables and state."""
+        try:
+            self.score = 0
+            
+            # Player
+            self.player_x = 1
+            self.player_y = 1
+            
+            # Ghosts
+            self.ghosts = [
+                {"x": 9, "y": 8, "dx": 1, "dy": 0},
+                {"x": 8, "y": 9, "dx": 0, "dy": 1},
+                {"x": 9, "y": 9, "dx": -1, "dy": 0},
+            ]
+            
+            # Maze generation
+            self.maze = self._generate_maze()
+            self.pellets = self._generate_pellets()
+            self.game_over = False
+            self.won = False
+            return True
+        except Exception as e:
+            print(f"Initialization error: {e}")
+            return False
 
     def _generate_maze(self) -> List[List[int]]:
         """Generate a simple maze. 1 = wall, 0 = path."""
@@ -70,21 +90,6 @@ class MazeGame(BaseGame):
                     pellets.add((i, j))
         return pellets
 
-    def initialize(self) -> bool:
-        """Initialize pygame and game resources."""
-        try:
-            pygame.init()
-            width = self.grid_width * self.tile_size
-            height = self.grid_height * self.tile_size + 50
-            self.screen = pygame.display.set_mode((width, height))
-            pygame.display.set_caption("Maze Game")
-            self.clock = pygame.time.Clock()
-            self.font = pygame.font.Font(None, 36)
-            return True
-        except Exception as e:
-            print(f"Initialization error: {e}")
-            return False
-
     def handle_event(self, event: pygame.event.Event) -> None:
         """Handle pygame events."""
         if event.type == pygame.QUIT:
@@ -93,7 +98,7 @@ class MazeGame(BaseGame):
             if event.key == pygame.K_ESCAPE:
                 self.running = False
             elif event.key == pygame.K_SPACE and self.game_over:
-                self.__init__(self.user_id, self.game_name)
+                self.initialize()
 
     def update(self, dt: float) -> None:
         """Update game state."""
