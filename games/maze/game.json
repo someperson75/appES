@@ -1,9 +1,0 @@
-{
-  "name": "maze",
-  "title": "Maze",
-  "description": "Navigate the maze while avoiding ghosts",
-  "version": "1.0.0",
-  "author": "omniGames",
-  "main_module": "maze",
-  "icon": "assets/thumbnail.png"
-}

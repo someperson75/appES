@@ -1,9 +1,0 @@
-{
-  "game_title": "Juego de Laberinto",
-  "game_description": "Navega el laberinto y recoge pellets",
-  "score": "Puntuación",
-  "you_won": "¡GANASTE!",
-  "caught": "¡ATRAPADO!",
-  "restart": "Presiona ESPACIO para reiniciar",
-  "escape": "Presiona ESC para salir"
-}

@@ -1,9 +1,0 @@
-{
-  "game_title": "Maze Game",
-  "game_description": "Navigate the maze and collect pellets",
-  "score": "Score",
-  "you_won": "YOU WON!",
-  "caught": "CAUGHT!",
-  "restart": "Press SPACE to restart",
-  "escape": "Press ESC to exit"
-}

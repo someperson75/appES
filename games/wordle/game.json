@@ -1,0 +1,9 @@
+{
+  "name": "wordle",
+  "title": "Wordle",
+  "description": "Guess the word within six attempts",
+  "version": "1.0.0",
+  "author": "omniGames",
+  "main_module": "wordle",
+  "icon": "assets/thumbnail.png"
+}

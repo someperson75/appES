@@ -173,7 +173,7 @@ class MemoryGame(BaseGame):
         ui_y = self.grid_rows * (self.card_height + self.card_spacing) + self.card_spacing
         score_text = self.font.render(f"Score: {self.score} | Moves: {self.moves}", True, (255, 255, 255))
         self.screen.blit(score_text, (10, ui_y + 10))
-        self.highest_score = max(self.highest_score, self.score/(self.moves if self.moves>0 else 1))
+        self.highest_score = max(self.highest_score, self.score//(self.moves if self.moves>0 else 1))
 
         if self.matched_count == len(self.cards) // 2:
             game_over_text = self.font.render("YOU WON! Press SPACE to restart", True, (0, 255, 0))

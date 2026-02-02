@@ -93,7 +93,7 @@ class SnakeGame(BaseGame):
             elif event.key == pygame.K_RIGHT and self.direction != (-1, 0):
                 self.next_direction = (1, 0)
             elif event.key == pygame.K_SPACE and self.game_over:
-                self.reset()
+                self.initialize()
 
     def update(self, dt: float) -> None:
         """Update game state."""
