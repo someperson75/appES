@@ -46,7 +46,7 @@ class GameButton:
 
         desc = tk.Label(
             info_frame,
-            text=game_data.get("description", ""),
+            text=self.game_locales.get(self.current_language, {}).get("game_description", game_data.get("description", "")),
             font=("Arial", 10),
             fg="#cccccc",
             bg="#2a2a2a",
@@ -277,7 +277,7 @@ class MainMenu:
             fg="white",
             width=15,
         )
-        install_btn.pack(side=tk.LEFT, padx=5)
+        install_btn.pack(side=tk.BOTTOM, pady=5,padx=5)
 
         stats_btn = tk.Button(
             button_frame,
@@ -288,7 +288,7 @@ class MainMenu:
             fg="white",
             width=15,
         )
-        stats_btn.pack(side=tk.LEFT, padx=5)
+        stats_btn.pack(side=tk.BOTTOM, pady=5)
 
         back_btn = tk.Button(
             button_frame,
@@ -299,7 +299,7 @@ class MainMenu:
             fg="white",
             width=15,
         )
-        back_btn.pack(side=tk.RIGHT, padx=5)
+        back_btn.pack(side=tk.BOTTOM, pady=5)
 
     def launch_game(self, game_data: dict):
         """Launch a game."""
